@@ -19,11 +19,12 @@ module.exports = function(RED) {
 
         function connect() {
             var socket = new ws( node.ssl?"wss":"ws" + "://" + node.host + ":" + node.port + "/api/websocket");
+            RED.log.trace(RED._("Attempting to connect to socket: " + socket.url));
             node.server = socket;
             socket.setMaxListeners(100);
 
             socket.on('error', function (e) {
-                RED.log.trace(RED._("Error connecting to Home Assistant"));
+                RED.log.info(RED._("Error connecting to Home Assistant: " + e.message));
                 node.currentStatus = 'error';
                 node.events.emit('stateChanged');
                 if (!node.closing) {
@@ -35,13 +36,13 @@ module.exports = function(RED) {
             });
 
             socket.on('open', function () {
-                RED.log.trace(RED._("Connected to Home Assistant"));
+                RED.log.info(RED._("Connected to Home Assistant"));
                 node.currentStatus = 'open';
                 node.events.emit('stateChanged');
             });
 
             socket.on('close', function () {
-                RED.log.trace(RED._("Disconnected from Home Assistant"));
+                RED.log.info(RED._("Disconnected from Home Assistant"));
                 node.currentStatus = 'close';
                 node.events.emit('stateChanged');
                 if (!node.closing) {
